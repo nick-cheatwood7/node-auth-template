@@ -1,0 +1,8 @@
+{
+    "extends": "@tsconfig/node18-strictest-esm/tsconfig.json",
+    "compilerOptions": {
+        "lib": ["DOM", "ESNext"],
+        "typeRoots": ["./global.d.ts", "./node_modules/@types"]
+    },
+    "include": ["./src/**/*"]
+}

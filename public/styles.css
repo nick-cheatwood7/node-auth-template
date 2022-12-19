@@ -1,0 +1,26 @@
+body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f5fc;
+}
+
+.registerForm {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    margin: 0.5em;
+}
+
+.registerBtn {
+    margin-top: 0.5em;
+    width: 100%;
+}
