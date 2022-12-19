@@ -10,27 +10,44 @@
     <body>
         <h1>Hello from Node.js</h1>
 
-        <h3>Register Form</h3>
-        <form id="register-form" class="registerForm">
-            <div class="inputGroup">
-                <label for="email">Email</label>
-                <input type="email" name="email" />
-            </div>
-            <div class="inputGroup">
-                <label for="password">Password</label>
-                <input type="password" name="password" />
-            </div>
-            <button class="registerBtn" type="submit">Register</button>
-        </form>
+        <div class="split-container">
+            <form id="register-form" class="registerForm">
+                <h3>Register Form</h3>
+                <div class="inputGroup">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" />
+                </div>
+                <div class="inputGroup">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" />
+                </div>
+                <button class="registerBtn" type="submit">Register</button>
+            </form>
+
+            <div class="break"></div>
+
+            <form id="login-form" class="registerForm">
+                <h3>Login Form</h3>
+                <div class="inputGroup">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" />
+                </div>
+                <div class="inputGroup">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" />
+                </div>
+                <button class="registerBtn" type="submit">Sign In</button>
+            </form>
+        </div>
 
         <script>
             // Will run on page load
             (() => {
-                const form = document.getElementById("register-form");
-                form.addEventListener("submit", async (event) => {
+                const registerForm = document.getElementById("register-form");
+                registerForm.addEventListener("submit", async (event) => {
                     event.preventDefault();
                     try {
-                        const values = Object.values(form).reduce(
+                        const values = Object.values(registerForm).reduce(
                             (obj, field) => {
                                 if (field.name) {
                                     obj[field.name] = field.value;
@@ -39,7 +56,35 @@
                             },
                             {}
                         );
-                        const res = await fetch("/api/register", {
+                        const res = await fetch("/api/v1/auth/register", {
+                            method: "POST",
+                            body: JSON.stringify(values),
+                            headers: {
+                                "Content-Type":
+                                    "application/json; charset=UTF-8"
+                            }
+                        });
+                        const data = await res.json();
+                        console.log(data);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                });
+
+                const loginForm = document.getElementById("login-form");
+                loginForm.addEventListener("submit", async (event) => {
+                    event.preventDefault();
+                    try {
+                        const values = Object.values(loginForm).reduce(
+                            (obj, field) => {
+                                if (field.name) {
+                                    obj[field.name] = field.value;
+                                }
+                                return obj;
+                            },
+                            {}
+                        );
+                        const res = await fetch("/api/v1/auth/login", {
                             method: "POST",
                             body: JSON.stringify(values),
                             headers: {
