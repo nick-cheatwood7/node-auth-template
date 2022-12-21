@@ -1,12 +1,17 @@
 import bcrypt from "bcryptjs";
 const { compare } = bcrypt;
+import { prisma } from "../../utils/prisma.js";
 
 export async function authorizeUser(email: string, password: string) {
-    const { user } = await import("../db/user/user");
-    const userData = await user.findOne({
-        "email.address": email
+    const user = await prisma.user.findFirst({
+        where: {
+            email
+        }
     });
-    const savedPassword = userData?.["password"];
+    const savedPassword = user?.password;
+    if (!user || !savedPassword) {
+        return { isAuthorized: false, userId: undefined };
+    }
     const isAuthorized = await compare(password, savedPassword);
-    return { isAuthorized, userId: userData?._id };
+    return { isAuthorized, userId: user.id };
 }

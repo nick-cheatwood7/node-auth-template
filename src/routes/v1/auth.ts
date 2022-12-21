@@ -1,6 +1,7 @@
 import type { FastifyInstance, RegisterOptions } from "fastify";
 import { authorizeUser } from "../../modules/accounts/authorize.js";
 import { loginUser } from "../../modules/accounts/loginUser.js";
+import { logoutUser } from "../../modules/accounts/logoutUser.js";
 import { registerUser } from "../../modules/accounts/register.js";
 import { __prod__ } from "../../utils/constants.js";
 
@@ -13,11 +14,16 @@ export default function (
         try {
             const { email, password } = request.body as any;
             const userId = await registerUser(email, password);
-            console.log("user created", userId);
-            reply.code(200).send({ data: "User created successfully!" });
+            if (userId) {
+                await loginUser(userId, request, reply);
+                return reply
+                    .code(200)
+                    .send({ data: "User created successfully!" });
+            }
+            return reply.code(400).send({ data: "Unable to create User" });
         } catch (e) {
             console.error(e);
-            reply.code(400);
+            return reply.code(400);
         }
     });
     fastify.post("/login", {}, async (request, reply) => {
@@ -27,18 +33,22 @@ export default function (
                 email,
                 password
             );
-            if (!isAuthorized) {
-                return reply.code(40).send({ data: "invalid credentias" });
+            if (!isAuthorized || !userId) {
+                return reply.code(400).send({ data: "invalid credentias" });
             }
             // Generate auth tokens, set cookies
-            await loginUser(String(userId), request, reply);
-            // send response
-            return reply.send({
-                data: "User logged in"
-            });
+            return await loginUser(userId, request, reply);
         } catch (e) {
             console.error(e);
             return reply.code(400);
+        }
+    });
+    fastify.delete("/logout", {}, async (req, reply) => {
+        try {
+            return await logoutUser(req, reply);
+        } catch (e) {
+            console.error(e);
+            return reply.code(500);
         }
     });
     done();

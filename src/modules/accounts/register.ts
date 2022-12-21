@@ -1,9 +1,8 @@
 import bcrypt from "bcryptjs";
 const { genSalt, hash } = bcrypt;
+import { prisma } from "../../utils/prisma.js";
 
 export async function registerUser(email: string, password: string) {
-    const { user } = await import("../db/user/user.js");
-
     // generate salt
     const salt = await genSalt(10);
 
@@ -11,14 +10,13 @@ export async function registerUser(email: string, password: string) {
     const hashedPassword = await hash(password, salt);
 
     // store in db
-    const result = await user.insertOne({
-        email: {
-            address: email,
-            verified: false
-        },
-        password: hashedPassword
+    const user = await prisma.user.create({
+        data: {
+            email,
+            password: hashedPassword
+        }
     });
 
     // return user from db
-    return result.insertedId;
+    return user.id;
 }

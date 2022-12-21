@@ -1,7 +1,8 @@
 import { randomBytes } from "crypto";
+import { prisma } from "../../utils/prisma.js";
 
 export async function createSession(
-    userId: string,
+    userId: number,
     connection: { ip: string; userAgent: string }
 ) {
     try {
@@ -10,15 +11,14 @@ export async function createSession(
         // retrieve connection info
         const { ip, userAgent } = connection;
         // insert into db
-        const { session } = await import("../db/session/session.js");
-        await session.insertOne({
-            sessionToken,
-            userId,
-            valid: true,
-            userAgent,
-            ip,
-            updatedAt: new Date(),
-            createdAt: new Date()
+        await prisma.session.create({
+            data: {
+                sessionToken,
+                userId,
+                valid: true,
+                ip,
+                userAgent
+            }
         });
         // return session token
         return sessionToken;

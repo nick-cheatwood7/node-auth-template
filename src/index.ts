@@ -4,7 +4,6 @@ import fastifyStatic from "@fastify/static";
 import fastifyCookie from "@fastify/cookie";
 import path from "path";
 import { fileURLToPath } from "url";
-import { connectDb } from "./utils/db.js";
 import { router } from "./routes/v1/index.js";
 import { COOKIE_SIGNATURE, __prod__ } from "./utils/constants.js";
 
@@ -46,6 +45,4 @@ async function main() {
     }
 }
 
-connectDb().then(() => {
-    main();
-});
+main();

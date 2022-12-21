@@ -1,8 +1,8 @@
+import type { FastifyReply, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
+import { JWTSignature, __prod__ } from "../../utils/constants.js";
 
-const JWTSignature = String(process.env["JWT_SIGNATURE"]);
-
-export async function createTokens(sessionToken: string, userId: string) {
+export async function createTokens(sessionToken: string, userId: number) {
     try {
         // create refresh token -- sessionToken
         const refreshToken = jwt.sign(
@@ -28,4 +28,40 @@ export async function createTokens(sessionToken: string, userId: string) {
         console.error(e);
         throw new Error("Unable to generate JWT tokens");
     }
+}
+
+export function getRefreshToken(request: FastifyRequest) {
+    return request?.cookies?.["refreshToken"];
+}
+
+export async function refreshTokens(
+    sessionToken: string,
+    userId: number,
+    reply: FastifyReply
+) {
+    const { accessToken, refreshToken } = await createTokens(
+        sessionToken,
+        userId
+    );
+    // set cookies
+    const now = new Date();
+    const refreshExpires = now.setDate(now.getDate() + 30);
+    reply
+        .code(200)
+        .setCookie("accessToken", accessToken, {
+            path: "/",
+            // domain: "localhost",
+            sameSite: "strict",
+            httpOnly: true,
+            secure: __prod__
+        })
+        .setCookie("refreshToken", refreshToken, {
+            path: "/",
+            // domain: "localhost",
+            sameSite: "strict",
+            httpOnly: true,
+            secure: __prod__,
+            expires: new Date(refreshExpires)
+        })
+        .send();
 }
